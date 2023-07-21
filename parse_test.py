@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 # from urllib.parse import unquote
 # import random
 num_page=0
+indication = False
 # функция открытия страницы и получения ее кода
 def get_sourse_html(url):
     global driver 
@@ -36,7 +37,8 @@ def get_item_url(url):
     with open ("company.txt","w") as file:
         for url in urls: 
             file.write(f"https://clutch.co{url}\n")
-    get_data("./company.txt")
+    if indication is True:
+        get_data("./company.txt")
 
 # функция для обхода списка компаний 
 def get_data(file_company):
@@ -147,7 +149,22 @@ def next_pagination(soup, url):
     else:
         num_page = 0
         driver.quit()
-        
+# пагинатор для сбора компаний
+def next_pagination_company(soup, url):
+
+    pagination = soup.find("ul", class_="pagination justify-content-center").find("li", class_="page-item next")
+    if pagination is not None:
+        global num_page
+        num_page+=1
+        url_company=url+f"&page={num_page}"
+        get_sourse_html(url_company)
+        get_item_url(url_company)
+    else:
+        num_page = 0
+        global indication
+        indication = True
+        # driver.quit()
+                
 def save_csv(parse_page):
     df = pd.DataFrame(parse_page)
     df.to_csv("parse.csv")
