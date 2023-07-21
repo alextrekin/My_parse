@@ -39,6 +39,8 @@ def get_item_url(url):
             file.write(f"https://clutch.co{url}\n")
     if indication is True:
         get_data("./company.txt")
+    else:
+        next_pagination_company(soup)
 
 # функция для обхода списка компаний 
 def get_data(file_company):
@@ -150,13 +152,14 @@ def next_pagination(soup, url):
         num_page = 0
         driver.quit()
 # пагинатор для сбора компаний
-def next_pagination_company(soup, url):
+def next_pagination_company(soup):
 
     pagination = soup.find("ul", class_="pagination justify-content-center").find("li", class_="page-item next")
     if pagination is not None:
         global num_page
         num_page+=1
-        url_company=url+f"&page={num_page}"
+        start = 'https://clutch.co/directory/android-application-developers?geona_id=40823'
+        url_company=start+f"&page={num_page}"
         get_sourse_html(url_company)
         get_item_url(url_company)
     else:
