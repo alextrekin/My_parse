@@ -9,6 +9,7 @@ indication = True
 parse_page = {}
 urls=[]
 url_pagination = None
+start = None
 
 # функция открытия страницы и получения ее кода
 def get_sourse_html(url):
@@ -54,6 +55,7 @@ def get_data(file_company):
         
 # тут получаем уже все отзывы постранично 
 def get_info_company(url, soup):
+    
     # получаю имя и фамилию
     try:
         items_names=[]
@@ -63,6 +65,7 @@ def get_info_company(url, soup):
         items_names.pop(0)
     except Exception as _ex:
         item_name = None
+        
     # получаю должность и имя компании
     try:
         items_positions=[]
@@ -72,17 +75,26 @@ def get_info_company(url, soup):
         items_positions.pop(0)
     except Exception as _ex:
         item_position = None
-        # получаю индустрию и город
+    
+    # получаю индустрию и город
     try:
         items_industrys=[]
         items_city=[]
-        start = 5
-        item_industry = soup.find_all("span", class_="reviewer_list__details-title sg-text__title")
-        while start<54:
-            items_industrys.append(str(item_industry[start])[58:-7])
-            start+=1
-            items_city.append(str(item_industry[start])[58:-7])
-            start+=4
+        item_industry = soup.find_all("ul", class_="reviewer_list")
+        for industry in item_industry:
+            try:
+                search_industrys = industry.find("li",{"data-tooltip-content":"<i>Industry</i>"}).get_text()
+            except Exception as _ex:
+                search_industrys = None
+            try:
+                search_city = industry.find("li",{"data-tooltip-content":"<i>Location</i>"}).get_text()
+            except Exception as _ex:
+                search_city = None
+            items_industrys.append(search_industrys)
+            items_city.append(search_city)
+        items_industrys.pop(0)
+        items_city.pop(0)
+
     except Exception as _ex:
         item_industry = None
 
@@ -91,10 +103,8 @@ def get_info_company(url, soup):
         items_price=[]
         item_price = soup.find_all("ul", class_="data--list")
         for price in item_price:
-            i = 'icon_tag"></span>\n'
-            start = str(price).find(i)
-            stop = str(price)[start:].find('</li>')+start
-            items_price.append(str(price)[start+len(i):stop].lstrip().rstrip())
+            search_price = price.find("li",{"data-tooltip-content":"<i>Project size</i>"}).get_text()
+            items_price.append(search_price.lstrip().rstrip())
         items_price.pop(0)
     except Exception as _ex:
         item_price = None
@@ -151,7 +161,7 @@ def next_pagination_company(soup):
     if pagination is not None:
         global num_page
         num_page+=1
-        start = 'https://clutch.co/directory/android-application-developers?geona_id=40823'
+        global start
         url_company=start+f"&page={num_page}"
         soup = get_sourse_html(url_company)
         get_item_url(url_company, soup)
@@ -175,9 +185,11 @@ def save_company():
     
             
 def main():
-    url = 'https://clutch.co/directory/android-application-developers?geona_id=40823'
-    soup = None
-    get_item_url(url,soup)
+    # url = 'https://clutch.co/directory/android-application-developers?geona_id=40823'
+    # start = url
+    # soup = None
+    # get_item_url(url,soup)
+    get_data("./company.txt")
 
 if __name__ == "__main__":
     main()
