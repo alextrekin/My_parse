@@ -14,7 +14,7 @@ start = None
 # функция открытия страницы и получения ее кода
 def get_sourse_html(url):
     driver = uc.Chrome()
-    
+
     try:
         driver.get(url=url)
         soup = BeautifulSoup(driver.page_source, "lxml")
@@ -22,6 +22,7 @@ def get_sourse_html(url):
         print (_ex)
     finally:
         time.sleep(random.randint(4,6))
+        driver.close()
         driver.quit()
         return soup
 
