@@ -8,6 +8,7 @@ num_page=0
 indication = True
 parse_page = {}
 urls=[]
+url_pagination = None
 
 # функция открытия страницы и получения ее кода
 def get_sourse_html(url):
@@ -46,7 +47,8 @@ def get_data(file_company):
     global num_page
     num_page = 0    
     for url in urls_list:
-        # time.sleep(10)
+        global url_pagination
+        url_pagination = url
         soup = get_sourse_html(url)
         get_info_company(url,soup)
         
@@ -136,7 +138,7 @@ def next_pagination(soup, url):
     if pagination is not None:
         global num_page
         num_page+=1
-        url_company=url+f"?page={num_page}"
+        url_company=url_pagination+f"?page={num_page}"
         soup = get_sourse_html(url_company)
         get_info_company(url_company, soup)
     else:
